@@ -1,26 +1,15 @@
 function Board() {
-  //set number of rows and columns
-  const row = 3;
-  const cols = 3;
   //create board
   let board = [];
-  for (let i = 0; i < row; i++) {
-    board[i] = [];
-    for (let j = 0; j < cols; j++) {
-      board[i].push("-");
-    }
-  }
-
-  let board2 = [];
   for (let x = 0; x < 9; x++) {
-    board2.push("- ");
+    board.push("-");
   }
 
   const displayBoard = () => {
     console.log(`
-    [${board2[0]}][${board2[1]}][${board2[2]}]
-    [${board2[3]}][${board2[4]}][${board2[5]}]
-    [${board2[6]}][${board2[7]}][${board2[8]}]
+    [${board[0]}][${board[1]}][${board[2]}]
+    [${board[3]}][${board[4]}][${board[5]}]
+    [${board[6]}][${board[7]}][${board[8]}]
     `);
   };
   //winning combinations
@@ -35,25 +24,21 @@ function Board() {
     [2, 4, 6],
   ];
   const checkWin = () => {
-    //convert 2D array to 1D
-    let x = [].concat(...board);
-
     for (let row of combinations) {
       if (
-        x[row[0]] === x[row[1]] &&
-        x[row[1]] === x[row[2]] &&
-        x[row[0]] !== "-"
+        board[row[0]] === board[row[1]] &&
+        board[row[1]] === board[row[2]] &&
+        board[row[0]] !== "-"
       )
         return true;
     }
     return false;
   };
 
-  const addToken = (x, y, token) => {
-    if (board[x][y] !== "-") alert("invalid move");
-    else board[x][y] = token;
+  const addToken = (index, token) => {
+    if (board[index] !== "-") alert("invalid move");
+    else board[index] = token;
     displayBoard();
-    // console.table(board);
   };
 
   return { board, addToken, checkWin };
@@ -95,8 +80,8 @@ function Game() {
     else return player2;
   };
 
-  const gameRound = (row, col) => {
-    board.addToken(row, col, getActivePlayer().getPlayerToken());
+  const gameRound = (index) => {
+    board.addToken(index, getActivePlayer().getPlayerToken());
     if (board.checkWin()) alert(`${getActivePlayer().getPlayerName()} wins!`);
     switchActivePlayer();
     console.log(`${getActivePlayer().getPlayerName()} to move`);
@@ -106,4 +91,3 @@ function Game() {
 }
 
 const newGame = Game();
-// console.table(newGame.board.board);
