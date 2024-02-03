@@ -47,3 +47,33 @@ h6 {
 #__next {
   isolation: isolate;
 }
+
+.grid {
+  background-image: url(images/tictactoe-bg.png);
+  background-size: contain;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+  aspect-ratio: 1;
+  width: 40%;
+  margin: 5rem auto;
+}
+
+@media (max-width: 480px) {
+  .grid {
+    width: 80%;
+  }
+}
+
+.grid > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.grid > div:hover {
+  background-color: rgba(255, 0, 0, 0.312);
+  border-radius: 1rem;
+}

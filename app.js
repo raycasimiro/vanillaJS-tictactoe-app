@@ -1,17 +1,43 @@
+function Cell(pIndex) {
+  let value = "-";
+  let index = pIndex;
+  const getValue = () => value;
+  const setValue = (newVal) => (value = newVal);
+  const getIndex = () => index;
+  const createCellHTML = () => {
+    let cell = document.createElement("div");
+    cell.innerHTML = value;
+    return cell;
+  };
+  return { getValue, setValue, getIndex, createCellHTML };
+}
 function Board() {
   //create board
   let board = [];
   for (let x = 0; x < 9; x++) {
-    board.push("-");
+    board.push(Cell(x));
   }
 
   const displayBoard = () => {
     console.log(`
-    [${board[0]}][${board[1]}][${board[2]}]
-    [${board[3]}][${board[4]}][${board[5]}]
-    [${board[6]}][${board[7]}][${board[8]}]
+    [${board[0].getValue()}][${board[1].getValue()}][${board[2].getValue()}]
+    [${board[3].getValue()}][${board[4].getValue()}][${board[5].getValue()}]
+    [${board[6].getValue()}][${board[7].getValue()}][${board[8].getValue()}]
     `);
   };
+
+  const createBoardHTML = () => {
+    let grid = document.createElement("div");
+    let main = document.querySelector("main");
+    main.innerHTML = ``;
+    grid.classList.add("grid");
+    for (let items of board) {
+      grid.appendChild(items.createCellHTML());
+    }
+
+    main.appendChild(grid);
+  };
+
   //winning combinations
   let combinations = [
     [0, 1, 2],
@@ -36,23 +62,11 @@ function Board() {
   };
 
   const addToken = (index, token) => {
-    if (board[index] !== "-") alert("invalid move");
-    else board[index] = token;
-    displayBoard();
+    if (board[index].getValue() !== "-") alert("invalid move");
+    else board[index].setValue(token);
   };
 
-  return { board, addToken, checkWin };
-}
-
-function Cell() {
-  let value = 0;
-  const getValue = () => {
-    return value;
-  };
-  const setValue = (newVal) => {
-    value = newVal;
-  };
-  return { getValue, setValue };
+  return { board, addToken, checkWin, displayBoard, createBoardHTML };
 }
 
 function Player(pName, pToken) {
@@ -80,10 +94,19 @@ function Game() {
     else return player2;
   };
 
+  const getInput = (e) => {
+    console.log(e);
+  };
+
+  board.displayBoard();
+  board.createBoardHTML();
+
   const gameRound = (index) => {
     board.addToken(index, getActivePlayer().getPlayerToken());
     if (board.checkWin()) alert(`${getActivePlayer().getPlayerName()} wins!`);
     switchActivePlayer();
+    board.displayBoard();
+    board.createBoardHTML();
     console.log(`${getActivePlayer().getPlayerName()} to move`);
   };
 
