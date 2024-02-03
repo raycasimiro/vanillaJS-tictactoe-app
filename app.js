@@ -1,45 +1,44 @@
 function Cell(pIndex) {
-  let value = "-";
+  let value = "";
   let index = pIndex;
   const getValue = () => value;
   const setValue = (newVal) => (value = newVal);
   const getIndex = () => index;
+
   const createCellHTML = () => {
     let cell = document.createElement("div");
-    cell.innerHTML = value;
+    if (value === "X") cell.style.backgroundImage = "url(images/x.png)";
+    if (value === "O") cell.style.backgroundImage = "url(images/o.png)";
+    cell.setAttribute("cell-index", index);
     return cell;
   };
   return { getValue, setValue, getIndex, createCellHTML };
 }
 function Board() {
-  //create board
   let board = [];
+  let winCells = [];
   for (let x = 0; x < 9; x++) {
     board.push(Cell(x));
   }
 
-  const displayBoard = () => {
-    console.log(`
-    [${board[0].getValue()}][${board[1].getValue()}][${board[2].getValue()}]
-    [${board[3].getValue()}][${board[4].getValue()}][${board[5].getValue()}]
-    [${board[6].getValue()}][${board[7].getValue()}][${board[8].getValue()}]
-    `);
-  };
-
   const createBoardHTML = () => {
     let grid = document.createElement("div");
-    let main = document.querySelector("main");
-    main.innerHTML = ``;
     grid.classList.add("grid");
     for (let items of board) {
       grid.appendChild(items.createCellHTML());
     }
+    return grid;
+  };
 
-    main.appendChild(grid);
+  const showWinCells = () => {
+    let grid = document.querySelector(".grid");
+    grid.children[winCells[0]].classList.add("blink");
+    grid.children[winCells[1]].classList.add("blink");
+    grid.children[winCells[2]].classList.add("blink");
   };
 
   //winning combinations
-  let combinations = [
+  const combinations = [
     [0, 1, 2],
     [3, 4, 5],
     [6, 7, 8],
@@ -49,24 +48,32 @@ function Board() {
     [0, 4, 8],
     [2, 4, 6],
   ];
+
   const checkWin = () => {
-    for (let row of combinations) {
+    for (let x of combinations) {
       if (
-        board[row[0]] === board[row[1]] &&
-        board[row[1]] === board[row[2]] &&
-        board[row[0]] !== "-"
-      )
+        board[x[0]].getValue() === board[x[1]].getValue() &&
+        board[x[1]].getValue() === board[x[2]].getValue() &&
+        board[x[0]].getValue() !== ""
+      ) {
+        winCells = x;
         return true;
+      }
     }
     return false;
   };
 
   const addToken = (index, token) => {
-    if (board[index].getValue() !== "-") alert("invalid move");
+    if (board[index].getValue() !== "") alert("invalid move");
     else board[index].setValue(token);
   };
 
-  return { board, addToken, checkWin, displayBoard, createBoardHTML };
+  const isValidMove = (index) => {
+    if (board[index].getValue() !== "") return false;
+    else return true;
+  };
+
+  return { addToken, checkWin, createBoardHTML, isValidMove, showWinCells };
 }
 
 function Player(pName, pToken) {
@@ -84,7 +91,7 @@ function Game() {
   const board = Board();
   const player1 = Player("p1", "X");
   const player2 = Player("p2", "O");
-
+  const main = document.querySelector("main");
   let playerTurn = 1;
   const switchActivePlayer = () => {
     playerTurn++;
@@ -94,23 +101,36 @@ function Game() {
     else return player2;
   };
 
-  const getInput = (e) => {
-    console.log(e);
+  const update = () => {
+    main.innerHTML = ``;
+    main.appendChild(board.createBoardHTML());
   };
 
-  board.displayBoard();
-  board.createBoardHTML();
+  //initial render
+  update();
+
+  //get player input
+  main.addEventListener("click", (e) => {
+    let index = parseInt(e.target.getAttribute("cell-index"));
+    if (index >= 0 && index <= 9)
+      if (board.isValidMove(index) && !board.checkWin()) gameRound(index);
+  });
+
+  main.addEventListener("dblclick", (e) => {
+    console.log(playerTurn);
+    if (board.checkWin() || playerTurn === 10) location.reload();
+  });
 
   const gameRound = (index) => {
     board.addToken(index, getActivePlayer().getPlayerToken());
-    if (board.checkWin()) alert(`${getActivePlayer().getPlayerName()} wins!`);
+
+    update();
+    if (board.checkWin()) board.showWinCells();
+
     switchActivePlayer();
-    board.displayBoard();
-    board.createBoardHTML();
-    console.log(`${getActivePlayer().getPlayerName()} to move`);
   };
 
-  return { gameRound, board };
+  return { board };
 }
 
 const newGame = Game();
